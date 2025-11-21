@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Pengeluaran; // <-- Tambahkan ini
+use App\Models\Pengeluaran;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PengeluaranExport;
@@ -14,10 +14,7 @@ class PengeluaranController extends Controller
      */
     public function index()
     {
-        // Ambil semua data, urutkan dari yang terbaru
-        $daftarPengeluaran = Pengeluaran::latest()->get();
-
-        // Kirim data ke view
+        $daftarPengeluaran = Pengeluaran::latest('tanggal')->get();
         return view('pengeluaran.index', compact('daftarPengeluaran'));
     }
 
@@ -34,72 +31,75 @@ class PengeluaranController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validasi input
         $validated = $request->validate([
             'keterangan' => 'required|string|max:255',
-            'jumlah' => 'required|integer|min:0',
-            'tanggal' => 'required|date',
+            'jumlah'     => 'required|integer|min:0',
+            'tanggal'    => 'required|date',
         ]);
 
-        // 2. Simpan ke database
         Pengeluaran::create($validated);
 
-        // 3. Redirect kembali dengan pesan sukses
         return redirect()->route('pengeluaran.index')
                          ->with('success', 'Data pengeluaran berhasil disimpan!');
     }
 
-    /**
-     * (Fungsi show tidak kita gunakan)
-     */
-    public function show(Pengeluaran $pengeluaran)
-    {
-        //
-    }
-
-    /**
-     * (Fungsi edit akan kita buat nanti)
-     */
     public function edit(Pengeluaran $pengeluaran)
     {
         return view('pengeluaran.edit', compact('pengeluaran'));
     }
 
-    /**
-     * (Fungsi update akan kita buat nanti)
-     */
     public function update(Request $request, Pengeluaran $pengeluaran)
     {
-        // 1. Validasi input
         $validated = $request->validate([
             'keterangan' => 'required|string|max:255',
-            'jumlah' => 'required|integer|min:0',
-            'tanggal' => 'required|date',
+            'jumlah'     => 'required|integer|min:0',
+            'tanggal'    => 'required|date',
         ]);
 
-        // 2. Update data di database
         $pengeluaran->update($validated);
 
-        // 3. Redirect kembali dengan pesan sukses
         return redirect()->route('pengeluaran.index')
                          ->with('success', 'Data pengeluaran berhasil di-update!');
     }
 
-    /**
-     * (Fungsi destroy akan kita buat nanti)
-     */
     public function destroy(Pengeluaran $pengeluaran)
     {
-        // 1. Hapus data
         $pengeluaran->delete();
 
-        // 2. Redirect kembali dengan pesan sukses
         return redirect()->route('pengeluaran.index')
                          ->with('success', 'Data pengeluaran berhasil dihapus!');
     }
     
-    public function exportExcel() 
+    /**
+     * EXPORT EXCEL DENGAN FILTER TANGGAL
+     */
+    public function exportExcel(Request $request) 
     {
-        return Excel::download(new PengeluaranExport, 'laporan_pengeluaran.xlsx');
+        // 1. Validasi input tanggal dari form
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date'   => 'required|date|after_or_equal:start_date',
+        ], [
+            'start_date.required'     => 'Silakan pilih tanggal mulai.',
+            'end_date.after_or_equal' => 'Tanggal sampai harus lebih besar dari tanggal mulai.',
+        ]);
+
+        $startDate = $request->input('start_date');
+        $endDate   = $request->input('end_date');
+
+        // 2. Cek apakah ada data di rentang tanggal tersebut?
+        // Kita pakai kolom 'tanggal' sesuai struktur databasemu
+        $exists = Pengeluaran::whereDate('tanggal', '>=', $startDate)
+                             ->whereDate('tanggal', '<=', $endDate)
+                             ->exists();
+
+        // 3. Jika data KOSONG, stop proses dan beri pesan error
+        if (!$exists) {
+            return back()->with('error', 'Tidak ada data pengeluaran pada periode tanggal tersebut.');
+        }
+
+        // 4. Jika data ADA, lakukan download
+        $namaFile = 'laporan_pengeluaran_' . date('d-m-Y_H-i') . '.xlsx';
+        return Excel::download(new PengeluaranExport($startDate, $endDate), $namaFile);
     }
 }

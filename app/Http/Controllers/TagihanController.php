@@ -30,10 +30,33 @@ class TagihanController extends Controller
         return view('tagihan.bayar', compact('tagihan'));
     }
 
-    public function exportExcel() 
+    public function exportExcel(Request $request) 
     {
-        // Perintah ini akan memicu download file
-        return Excel::download(new TagihanExport, 'laporan_tagihan_kost_bu_adah.xlsx');
+        // 1. Validasi Tanggal
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date'   => 'required|date|after_or_equal:start_date',
+        ], [
+            'end_date.after_or_equal' => 'Tanggal sampai tidak boleh lebih kecil dari tanggal mulai!',
+            'start_date.required'     => 'Silakan pilih tanggal mulai terlebih dahulu.',
+        ]);
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // 2. Cek Data Kosong
+        $exists = Tagihan::whereDate('created_at', '>=', $startDate)
+                         ->whereDate('created_at', '<=', $endDate)
+                         ->exists();
+
+        if (!$exists) {
+            return back()->with('error', 'Tidak ada data tagihan pada periode tanggal tersebut.');
+        }
+
+        $namaFile = 'laporan_tagihan_' . date('d-m-Y_H-i') . '.xlsx';
+
+        // INI YANG MEMPERBAIKI ERROR: Mengirim $startDate dan $endDate
+        return Excel::download(new TagihanExport($startDate, $endDate), $namaFile);
     }
 
     /**
@@ -62,6 +85,11 @@ class TagihanController extends Controller
      */
     public function konfirmasi(Tagihan $tagihan)
     {
+        // Cek dulu
+        if ($tagihan->status === 'lunas') {
+            return redirect()->back()->with('error', 'Tagihan ini sudah lunas sebelumnya.');
+        }
+
         $tagihan->status = 'lunas';
         $tagihan->save();
 

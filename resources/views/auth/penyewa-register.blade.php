@@ -59,14 +59,25 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Foto KTP (Wajib)</label>
-                        <div class="flex items-center justify-center w-full">
-                            <label class="flex flex-col w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
-                                <div class="flex flex-col items-center justify-center pt-4">
-                                    <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                    <p class="pt-1 text-xs text-gray-500">Klik untuk upload foto</p>
-                                </div>
-                                <input type="file" name="foto_ktp" class="opacity-0" accept="image/*" required />
-                            </label>
+                        
+                        <div class="relative w-full h-48 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-50 bg-white overflow-hidden group">
+                            
+                            <input type="file" 
+                                   name="foto_ktp" 
+                                   id="foto_ktp" 
+                                   class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" 
+                                   accept="image/*" 
+                                   onchange="previewImage(event)" 
+                                   required />
+                            
+                            <div id="placeholder-area" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+                                <svg class="w-8 h-8 text-gray-400 group-hover:text-gray-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <p class="pt-1 text-sm text-gray-500 group-hover:text-gray-600">Klik area ini untuk upload foto</p>
+                            </div>
+            
+                            <img id="image-preview" class="absolute inset-0 w-full h-full object-contain bg-gray-100 hidden z-10" alt="Preview KTP">
                         </div>
                     </div>
 
@@ -101,5 +112,30 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function previewImage(event) {
+            const input = event.target;
+            const preview = document.getElementById('image-preview');
+            const placeholder = document.getElementById('placeholder-area');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden'); // Munculkan gambar
+                    placeholder.classList.add('hidden'); // Sembunyikan teks placeholder
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                // Kalau user batal milih, reset
+                preview.src = "";
+                preview.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+        }
+    </script>
 </body>
 </html>

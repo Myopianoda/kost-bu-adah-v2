@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Sewa;
-use App\Models\Tagihan; // Pastikan Model Tagihan di-import
+use App\Models\Tagihan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +16,7 @@ class BookingController extends Controller
      */
     public function index()
     {
+        // Menampilkan booking pending di paling atas
         $bookings = Booking::with(['unit', 'penyewa'])
                            ->orderByRaw("FIELD(status, 'pending') DESC")
                            ->orderBy('created_at', 'desc')
@@ -29,45 +30,65 @@ class BookingController extends Controller
      */
     public function approve(Booking $booking)
     {
-        DB::transaction(function () use ($booking) {
+        // 1. CEK STATUS BOOKING (Sudah benar)
+        if ($booking->status !== 'pending') {
+            return redirect()->back()->with('error', 'Tindakan ditolak. Booking ini sudah diproses sebelumnya.');
+        }
 
-            // 1. Ubah status booking
-            $booking->status = 'approved';
-            $booking->save();
+        try {
+            DB::transaction(function () use ($booking) {
+                
+                // --- [TAMBAHAN PENTING DI SINI] ---
+                // Ambil data unit terbaru & kunci barisnya biar aman (Lock For Update)
+                // Kita cek: Jangan sampai kita meng-ACC booking untuk kamar yang SUDAH PENUH.
+                $unit = \App\Models\Unit::where('id', $booking->unit_id)
+                                        ->lockForUpdate()
+                                        ->first();
 
-            // 2. Buat Data Sewa
-            $sewa = Sewa::create([
-                'unit_id'       => $booking->unit_id,
-                'penyewa_id'    => $booking->penyewa_id,
-                'tanggal_mulai' => $booking->tanggal_mulai,
-                'status'        => 'aktif',
-            ]);
+                if ($unit->status === 'terisi') {
+                    // Lempar error agar masuk ke catch dan membatalkan semua proses
+                    throw new \Exception('Gagal! Unit ini SUDAH TERISI oleh penyewa lain (Mungkin baru saja di-ACC).');
+                }
+                // ----------------------------------
 
-            // 3. Ubah Status Unit
-            $unit = $booking->unit;
-            $unit->status = 'terisi';
-            $unit->save();
+                // A. Ubah status booking
+                $booking->status = 'approved';
+                $booking->save();
 
-            // 4. Buat Tagihan (VERSI FIX)
-            $jatuhTempo = Carbon::parse($booking->tanggal_mulai);
-            
-            // Cek harga di model Unit (harga atau price)
-            $hargaSewa = $unit->harga ?? $unit->price;
+                // B. Buat Data Sewa
+                $sewa = Sewa::create([
+                    'unit_id'       => $booking->unit_id,
+                    'penyewa_id'    => $booking->penyewa_id,
+                    'tanggal_mulai' => $booking->tanggal_mulai,
+                    'status'        => 'aktif',
+                ]);
 
-            Tagihan::create([
-                'sewa_id'             => $sewa->id,
-                // 'penyewa_id'       => ... // <--- HAPUS INI
-                // 'unit_id'          => ... // <--- HAPUS INI
-                'tanggal_tagihan'     => Carbon::now(),
-                'tanggal_jatuh_tempo' => $jatuhTempo,          
-                'bulan'               => $jatuhTempo->translatedFormat('F Y'), 
-                'jumlah'              => $hargaSewa, 
-                'status'              => 'belum_bayar',
-                'keterangan'          => 'Tagihan sewa bulan pertama (via Booking)',
-            ]);
-        });
+                // C. Ubah Status Unit Menjadi Terisi
+                // Kita pakai variabel $unit yang sudah kita lock di atas
+                $unit->status = 'terisi';
+                $unit->save();
 
-        return redirect()->back()->with('success', 'Booking diterima! Sewa aktif & Tagihan dibuat.');
+                // D. Buat Tagihan Bulan Pertama
+                $jatuhTempo = Carbon::parse($booking->tanggal_mulai);
+                $hargaSewa = $unit->price; 
+
+                Tagihan::create([
+                    'sewa_id'             => $sewa->id,
+                    'tanggal_tagihan'     => Carbon::now(),
+                    'tanggal_jatuh_tempo' => $jatuhTempo,          
+                    'bulan'               => $jatuhTempo->translatedFormat('F Y'), 
+                    'jumlah'              => $hargaSewa, 
+                    'status'              => 'belum_bayar',
+                    'keterangan'          => 'Tagihan sewa bulan pertama (via Booking)',
+                ]);
+            });
+
+            return redirect()->back()->with('success', 'Booking diterima! Sewa aktif & Tagihan bulan pertama telah dibuat.');
+
+        } catch (\Exception $e) {
+            // Pesan error dari "throw new Exception" di atas akan muncul di sini
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -75,17 +96,30 @@ class BookingController extends Controller
      */
     public function reject(Booking $booking)
     {
-        DB::transaction(function () use ($booking) {
-            // 1. Ubah status booking jadi rejected
-            $booking->status = 'rejected';
-            $booking->save();
+        // 1. CEK KEAMANAN: Jangan tolak jika sudah diproses
+        if ($booking->status !== 'pending') {
+            return redirect()->back()->with('error', 'Tindakan ditolak. Booking ini sudah diproses sebelumnya.');
+        }
 
-            // 2. Kembalikan status unit jadi 'tersedia'
-            $unit = $booking->unit;
-            $unit->status = 'tersedia';
-            $unit->save();
-        });
+        try {
+            DB::transaction(function () use ($booking) {
+                // A. Ubah status booking jadi rejected
+                $booking->status = 'rejected';
+                $booking->save();
 
-        return redirect()->back()->with('success', 'Booking ditolak. Unit kembali tersedia.');
+                // B. Kembalikan status unit jadi 'tersedia'
+                // Hanya ubah jika status unit saat ini adalah 'booking'
+                $unit = $booking->unit;
+                if ($unit->status === 'booking') {
+                    $unit->status = 'tersedia';
+                    $unit->save();
+                }
+            });
+
+            return redirect()->back()->with('success', 'Booking ditolak. Unit kembali tersedia untuk orang lain.');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 }

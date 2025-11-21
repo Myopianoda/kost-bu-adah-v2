@@ -34,7 +34,7 @@ class DashboardController extends Controller
         // 3. Hitung Laba Bersih
         $labaBersihBulanIni = $pendapatanBulanIni - $pengeluaranBulanIni;
         
-        // 4. Ambil daftar tagihan yang akan jatuh tempo (YANG HILANG TADI)
+        // 4. Ambil daftar tagihan yang akan jatuh tempo
         $tagihanJatuhTempo = Tagihan::with(['sewa.penyewa', 'sewa.unit'])
             ->where('status', 'belum_bayar')
             ->where('tanggal_jatuh_tempo', '<=', Carbon::now()->addDays(7))
@@ -42,26 +42,31 @@ class DashboardController extends Controller
             ->orderBy('tanggal_jatuh_tempo', 'asc')
             ->get();
 
-        // --- LOGIKA GRAFIK ---
+        // --- LOGIKA GRAFIK (PERBAIKAN DI SINI) ---
         $dataPendapatan = Tagihan::select(
             DB::raw('SUM(jumlah) as total'),
             DB::raw("DATE_FORMAT(updated_at, '%Y-%m') as bulan")
         )
         ->where('status', 'lunas')
         ->where('updated_at', '>=', Carbon::now()->subMonths(5))
-        ->groupBy('bulan')
+        // PERBAIKAN: Gunakan DB::raw yang sama persis dengan di select, jangan pakai alias 'bulan'
+        ->groupBy(DB::raw("DATE_FORMAT(updated_at, '%Y-%m')")) 
         ->orderBy('bulan', 'asc')
         ->get();
 
         $chartLabels = [];
         $chartData = [];
         $tanggal = Carbon::now()->subMonths(5)->startOfMonth();
+        
+        // Loop 6 bulan terakhir
         for ($i = 0; $i < 6; $i++) {
             $bulan = $tanggal->format('Y-m');
             $label = $tanggal->format('M Y');
             $chartLabels[] = $label;
+            
             $pendapatanBulan = $dataPendapatan->firstWhere('bulan', $bulan);
             $chartData[] = $pendapatanBulan ? $pendapatanBulan->total : 0;
+            
             $tanggal->addMonth();
         }
         
@@ -71,7 +76,7 @@ class DashboardController extends Controller
             'unitKosong',
             'pendapatanBulanIni',
             'tagihanBelumBayar',
-            'tagihanJatuhTempo', // <-- Sekarang sudah aman karena ada definisinya
+            'tagihanJatuhTempo',
             'pengeluaranBulanIni',
             'labaBersihBulanIni',
             'chartLabels',
