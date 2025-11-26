@@ -1,126 +1,121 @@
 <?php
-    // Logika Layout (Pilih baju Admin atau Penyewa)
-    if (Auth::guard('web')->check()) {
-        $layout = 'app-layout';
-    } else {
-        $layout = 'penyewa-layout';
-    }
+    if (Auth::guard('web')->check()) { $layout = 'app-layout'; } else { $layout = 'penyewa-layout'; }
 ?>
 
 <x-dynamic-component :component="$layout">
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Konfirmasi Pembayaran') }}
+            {{ __('Pembayaran') }}
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+    <div class="py-10">
+        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="flex flex-col space-y-6">
                     
-                    <div>
-                        <div class="border-b pb-4 mb-4">
-                            <h3 class="text-lg font-bold text-gray-900 mb-2">Detail Tagihan</h3>
-                            <div class="text-gray-600">
-                                <p>Unit: <strong>{{ $tagihan->sewa->unit->name }}</strong></p>
-                                <p>Bulan: {{ \Carbon\Carbon::parse($tagihan->tanggal_tagihan)->format('F Y') }}</p>
-                                <p class="text-2xl font-bold text-indigo-600 mt-2">Rp {{ number_format($tagihan->jumlah) }}</p>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs text-gray-400 uppercase tracking-wider font-bold">Total Tagihan</p>
+                                <h3 class="text-3xl font-extrabold text-gray-900 mt-1">Rp {{ number_format($tagihan->jumlah) }}</h3>
                             </div>
-                        </div>
-
-                        <h3 class="text-lg font-bold text-gray-900 mb-4">Metode Pembayaran</h3>
-                        
-                        <div class="mb-6">
-                            <p class="text-sm font-semibold mb-2 text-gray-700">Opsi 1: Scan QRIS</p>
-                            <div class="bg-gray-100 w-48 h-48 flex items-center justify-center text-gray-400 text-xs border border-gray-300 rounded-lg">
-                                {{-- GANTI DENGAN FILE GAMBAR QRIS ANDA NANTI --}}
-                                {{-- <img src="{{ asset('img/qris.jpg') }}" class="w-full h-full object-contain"> --}}
-                                [Gambar QRIS Anda]
+                            <div class="text-right">
+                                <span class="block text-sm font-bold text-gray-800">{{ $tagihan->sewa->unit->name }}</span>
+                                <span class="block text-xs text-gray-500">{{ $tagihan->bulan }}</span>
                             </div>
-                        </div>
-
-                        <div class="mb-6">
-                            <p class="text-sm font-semibold mb-2 text-gray-700">Opsi 2: Transfer Bank</p>
-                            <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                                <div class="flex items-center justify-between mb-1">
-                                    <span class="text-sm font-bold text-blue-800">BCA (Bank Central Asia)</span>
-                                    {{-- Ikon copy bisa ditambahkan di sini nanti --}}
-                                </div>
-                                <p class="text-xl font-mono text-gray-800 tracking-wider">123-456-7890</p>
-                                <p class="text-sm text-gray-500 mt-1">a.n Bu Adah</p>
-                            </div>
-                        </div>
-
-                        <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                            <p class="text-sm font-bold text-yellow-800 flex items-center">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                                Opsi 3: Pembayaran Tunai
-                            </p>
-                            <p class="text-sm text-gray-600 mt-1">
-                                Silakan temui Admin/Pengelola di lokasi untuk bayar tunai. Anda tidak perlu upload bukti di sini.
-                            </p>
                         </div>
                     </div>
 
-                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 h-fit">
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">Sudah Transfer?</h3>
-                        <p class="text-sm text-gray-500 mb-6">Silakan upload bukti pembayaran agar kami bisa memverifikasi.</p>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex-1">
+                        <h3 class="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wide">Pilih Cara Bayar</h3>
                         
-                        <form action="{{ route('tagihan.upload', $tagihan->id) }}" method="POST" enctype="multipart/form-data">
+                        <div class="space-y-4">
+                            <div class="border border-gray-200 rounded-xl p-4 flex items-center gap-4 hover:border-gray-400 transition cursor-pointer">
+                                <div class="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=BayarKostBuAdah" 
+                                         class="w-16 h-16 object-contain mix-blend-multiply">
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-800 text-sm">Scan QRIS (Digital)</h4>
+                                    <p class="text-xs text-gray-500 mt-1">OVO, GoPay, Dana, ShopeePay.</p>
+                                    <span class="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded mt-2 inline-block">Otomatis Upload Bukti -></span>
+                                </div>
+                            </div>
+
+                            <div class="border border-gray-200 rounded-xl p-4 flex items-center gap-4 hover:border-gray-400 transition cursor-pointer">
+                                <div class="w-20 h-20 bg-gray-50 rounded-lg border border-gray-100 flex items-center justify-center text-gray-400">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-800 text-sm">Bayar Tunai (Cash)</h4>
+                                    <p class="text-xs text-gray-500 mt-1">Bayar langsung ke Ibu Adah.</p>
+                                    <p class="text-[10px] text-red-500 mt-1 italic">*Tidak perlu upload bukti di sini.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="flex flex-col h-full">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-full flex flex-col">
+                        <div class="mb-4">
+                            <h3 class="text-lg font-bold text-gray-900">Konfirmasi Transfer</h3>
+                            <p class="text-sm text-gray-500">Khusus pembayaran QRIS/Transfer, upload buktinya di sini.</p>
+                        </div>
+
+                        <form action="{{ route('tagihan.upload', $tagihan->id) }}" method="POST" enctype="multipart/form-data" class="flex-1 flex flex-col">
                             @csrf
                             @method('PATCH')
 
-                            <div class="mb-6">
-                                <label class="block font-medium text-sm text-gray-700 mb-2">Foto Bukti Transfer</label>
-                                
-                                <div class="flex items-center justify-center w-full">
-                                    <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 relative overflow-hidden">
-                                        
-                                        {{-- Tampilan Awal (Icon Upload) --}}
-                                        <div id="upload-placeholder" class="flex flex-col items-center justify-center pt-5 pb-6">
-                                            <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                                            </svg>
-                                            <p class="text-sm text-gray-500"><span class="font-semibold">Klik untuk upload</span></p>
-                                            <p class="text-xs text-gray-500">JPG, PNG (MAX. 2MB)</p>
+                            <div class="flex-1 mb-4 min-h-[200px]">
+                                <label class="relative w-full h-full border-2 border-dashed border-gray-300 rounded-xl hover:border-gray-500 hover:bg-gray-50 transition flex flex-col justify-center items-center cursor-pointer overflow-hidden group bg-white">
+                                    
+                                    <input type="file" 
+                                           name="bukti_bayar" 
+                                           class="absolute inset-0 w-full h-full opacity-0 z-20 cursor-pointer"
+                                           accept="image/*"
+                                           onchange="previewBukti(event)"
+                                           required>
+                                    
+                                    <div id="placeholder-area" class="text-center p-4">
+                                        <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-gray-200 transition">
+                                            <svg class="w-6 h-6 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                         </div>
+                                        <p class="text-sm font-medium text-gray-700">Klik untuk Upload Bukti</p>
+                                        <p class="text-xs text-gray-400 mt-1">JPG, PNG (Max 2MB)</p>
+                                    </div>
 
-                                        {{-- Tampilan Preview (Awalnya Sembunyi) --}}
-                                        <img id="preview-image" src="#" alt="Preview" class="hidden absolute inset-0 w-full h-full object-contain p-2 bg-white" />
-
-                                        <input id="dropzone-file" type="file" name="bukti_bayar" class="hidden" required accept="image/*" onchange="previewFile(this)" />
-                                    </label>
-                                </div>
+                                    <img id="image-preview" class="absolute inset-0 w-full h-full object-contain bg-white hidden z-10 p-4" />
+                                </label>
                             </div>
 
-                            {{-- SCRIPT SEDERHANA UNTUK PREVIEW --}}
-                            <script>
-                                function previewFile(input) {
-                                    var file = input.files[0];
-                                    if (file) {
-                                        var reader = new FileReader();
-                                        reader.onload = function(e) {
-                                            document.getElementById('preview-image').src = e.target.result;
-                                            document.getElementById('preview-image').classList.remove('hidden');
-                                            document.getElementById('upload-placeholder').classList.add('hidden');
-                                        }
-                                        reader.readAsDataURL(file);
-                                    }
-                                }
-                            </script>
-
-                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-150 flex justify-center items-center">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                KIRIM BUKTI PEMBAYARAN
+                            <button type="submit" class="w-full py-3 px-4 bg-gray-900 hover:bg-black text-white font-bold rounded-lg transition shadow-md">
+                                Kirim Bukti
                             </button>
                         </form>
                     </div>
-
                 </div>
 
             </div>
         </div>
     </div>
+
+    <script>
+        function previewBukti(event) {
+            const input = event.target;
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('image-preview').src = e.target.result;
+                    document.getElementById('image-preview').classList.remove('hidden');
+                    document.getElementById('placeholder-area').classList.add('opacity-0');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 </x-dynamic-component>

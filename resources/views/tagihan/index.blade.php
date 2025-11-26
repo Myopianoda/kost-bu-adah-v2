@@ -8,6 +8,7 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
+            {{-- Alert Sukses --}}
             @if (session('success'))
                 <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)"
                      class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded shadow-sm flex items-center justify-between">
@@ -19,6 +20,7 @@
                 </div>
             @endif
             
+            {{-- Alert Error --}}
             @if (session('error'))
                 <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)"
                      class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded shadow-sm flex items-center justify-between">
@@ -33,9 +35,12 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     
-                    <div class="mb-6">
-                        <h3 class="text-lg font-bold text-gray-900">Daftar Tagihan Bulanan</h3>
-                        <p class="text-sm text-gray-500">Pantau status pembayaran dan verifikasi bukti transfer.</p>
+                    <div class="mb-6 flex justify-between items-end">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">Daftar Tagihan Bulanan</h3>
+                            <p class="text-sm text-gray-500">Pantau status pembayaran dan verifikasi bukti transfer.</p>
+                        </div>
+                        {{-- Tombol Export Excel (Opsional, sudah ada di menu Laporan) --}}
                     </div>
 
                     <div class="overflow-x-auto border rounded-lg">
@@ -98,7 +103,7 @@
                                         </td>
 
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            @if($tagihan->status == 'belum_bayar')
+                                            @if($tagihan->status == 'belum_bayar' || $tagihan->status == 'menunggu_verifikasi')
                                                 
                                                 <div class="flex items-center justify-end gap-2">
                                                     {{-- FORM KONFIRMASI (TERIMA) --}}
@@ -137,10 +142,19 @@
                                                 @endif
 
                                             @else
-                                                <span class="flex items-center justify-end text-green-600 font-bold text-sm">
-                                                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                                    Selesai
-                                                </span>
+                                                {{-- JIKA LUNAS --}}
+                                                <div class="flex flex-col items-end gap-1">
+                                                    <span class="flex items-center justify-end text-green-600 font-bold text-sm">
+                                                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                        Selesai
+                                                    </span>
+                                                    
+                                                    {{-- [BARU] Tombol Cetak Nota untuk Admin --}}
+                                                    <a href="{{ route('tagihan.nota', $tagihan->id) }}" target="_blank" class="text-xs text-gray-500 hover:text-gray-800 flex items-center" title="Cetak Nota PDF">
+                                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                                        Cetak Nota
+                                                    </a>
+                                                </div>
                                             @endif
                                         </td>
                                     </tr>

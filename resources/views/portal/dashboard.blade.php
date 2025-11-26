@@ -8,141 +8,129 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            @if (session('success'))
-                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
-                     x-transition:enter="transition ease-out duration-300"
-                     x-transition:enter-start="opacity-0 transform -translate-y-2"
-                     x-transition:enter-end="opacity-100 transform translate-y-0"
-                     x-transition:leave="transition ease-in duration-300"
-                     x-transition:leave-start="opacity-100 transform translate-y-0"
-                     x-transition:leave-end="opacity-0 transform -translate-y-2"
-                     class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded shadow-sm flex items-center justify-between">
-                    <div class="flex items-center">
-                        <svg class="w-6 h-6 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        <span class="text-green-700 font-medium">{{ session('success') }}</span>
-                    </div>
-                    <button @click="show = false" class="text-green-400 hover:text-green-600 focus:outline-none">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
-            @endif
-
-            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-lg p-8 text-white mb-8 relative overflow-hidden">
-                <div class="relative z-10">
-                    <h2 class="text-3xl font-bold mb-2">Halo, {{ $penyewa->nama_lengkap }}! 👋</h2>
-                    <p class="text-indigo-100">Selamat datang di dashboard penghuni. Cek tagihan dan status sewa Anda di sini.</p>
-                </div>
-                <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
-                <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
+            <div class="bg-indigo-600 rounded-lg shadow-xl p-6 mb-6 text-white">
+                <h2 class="text-2xl font-bold">Halo, {{ $penyewa->nama_lengkap }}! 👋</h2>
+                <p class="mt-2 opacity-90">Selamat datang di portal penyewa Kost Bu Adah.</p>
             </div>
 
-            {{-- LOOPING DATA SEWA --}}
-            @forelse ($sewaPenyewa as $sewa)
-                <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100 mb-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 border-b border-gray-200">
                     
-                    <div class="p-6 border-b border-gray-100 bg-gray-50 flex flex-col md:flex-row justify-between md:items-center gap-4">
-                        <div class="flex items-center gap-4">
-                            <div class="p-3 bg-indigo-100 rounded-lg text-indigo-600">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-bold text-gray-800">{{ $sewa->unit->name }}</h3>
-                                <p class="text-sm text-gray-500">Mulai Sewa: {{ \Carbon\Carbon::parse($sewa->tanggal_mulai)->format('d M Y') }}</p>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">
-                                Status: Aktif
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="p-0">
+                    {{-- LOGIKA TAMPILAN BERDASARKAN STATUS --}}
+
+                    @if($timeline->count() > 0)
+                        {{-- KONDISI 1: SUDAH JADI PENGHUNI (SEWA AKTIF) --}}
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">Rincian Pembayaran Sewa (3 Bulan Ke Depan)</h3>
+                        
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-white">
+                                <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Bulan</th>
-                                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Total</th>
-                                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Jatuh Tempo</th>
-                                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
-                                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Aksi</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bulan</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jatuh Tempo</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nominal</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-50">
-                                    @forelse ($sewa->tagihan as $tagihan)
-                                        <tr class="hover:bg-gray-50 transition duration-150">
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach($timeline as $item)
+                                        <tr class="hover:bg-gray-50 transition">
                                             <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                                                {{ \Carbon\Carbon::parse($tagihan->tanggal_tagihan)->format('F Y') }}
+                                                {{ $item['bulan'] }}
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-gray-700">
-                                                Rp {{ number_format($tagihan->jumlah) }}
-                                            </td>
+
                                             <td class="px-6 py-4 whitespace-nowrap text-gray-500">
-                                                {{ \Carbon\Carbon::parse($tagihan->tanggal_jatuh_tempo)->format('d M Y') }}
+                                                {{ \Carbon\Carbon::parse($item['tanggal_jatuh_tempo'])->translatedFormat('d F Y') }}
                                             </td>
-                                            
-                                            {{-- KOLOM STATUS --}}
+
+                                            <td class="px-6 py-4 whitespace-nowrap text-gray-700">
+                                                Rp {{ number_format($item['jumlah'], 0, ',', '.') }}
+                                            </td>
+
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                @if($tagihan->status == 'lunas')
-                                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 border border-green-200">
+                                                @if($item['status'] == 'lunas')
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                                         Lunas
                                                     </span>
-                                                @elseif($tagihan->bukti_bayar)
-                                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-                                                        Verifikasi
+                                                @elseif($item['status'] == 'menunggu_verifikasi')
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                        Menunggu Verifikasi
+                                                    </span>
+                                                @elseif($item['status'] == 'estimasi')
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-500">
+                                                        Akan Datang
                                                     </span>
                                                 @else
-                                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                                         Belum Bayar
                                                     </span>
                                                 @endif
                                             </td>
 
-                                            {{-- KOLOM AKSI --}}
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                @if($tagihan->status == 'belum_bayar' && !$tagihan->bukti_bayar)
-                                                    {{-- TOMBOL BAYAR (LINK GET - SUDAH DIPERBAIKI) --}}
-                                                    <a href="{{ route('tagihan.bayar', $tagihan->id) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                @if($item['status'] == 'lunas')
+                                                    <a href="{{ route('tagihan.nota', $item['tagihan_id']) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 flex items-center font-bold">
+                                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                                        Cetak Nota
+                                                    </a>
+                                                @elseif($item['status'] == 'menunggu_verifikasi')
+                                                    <span class="text-gray-400 italic flex items-center cursor-not-allowed">
+                                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                        Sedang Diproses
+                                                    </span>
+                                                @elseif($item['status'] == 'estimasi')
+                                                    <span class="text-gray-400">-</span>
+                                                @else
+                                                    <a href="{{ route('tagihan.bayar', $item['tagihan_id']) }}" class="inline-flex items-center px-3 py-1 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150">
                                                         Bayar Sekarang
                                                     </a>
-                                                @elseif($tagihan->bukti_bayar && $tagihan->status != 'lunas')
-                                                    <span class="text-xs font-medium text-gray-400 italic flex items-center">
-                                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                                        Menunggu Admin
-                                                    </span>
-                                                @else
-                                                    <span class="text-green-500 font-bold flex items-center">
-                                                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                                        Selesai
-                                                    </span>
                                                 @endif
                                             </td>
                                         </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="5" class="px-6 py-8 text-center text-gray-400 italic">
-                                                Belum ada riwayat tagihan untuk unit ini.
-                                            </td>
-                                        </tr>
-                                    @endforelse
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
-                    </div>
+
+                    @elseif(isset($bookingPending) && $bookingPending)
+                        {{-- KONDISI 2: BOOKING SUDAH DIKIRIM TAPI BELUM DI-ACC --}}
+                        <div class="flex flex-col items-center justify-center py-12 text-center">
+                            <div class="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mb-6 animate-pulse">
+                                <svg class="w-10 h-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">Permintaan Booking Terkirim!</h3>
+                            <p class="text-gray-600 mb-2 max-w-md mx-auto">
+                                Anda telah mengajukan booking untuk kamar <strong>{{ $bookingPending->unit->name }}</strong>.
+                            </p>
+                            <div class="bg-yellow-50 px-6 py-3 rounded-lg border border-yellow-200 inline-block">
+                                <p class="text-sm text-yellow-800 font-medium">
+                                    Mohon tunggu konfirmasi dari Admin/Pemilik Kost. <br>
+                                    Status sewa dan tagihan akan muncul di sini setelah booking disetujui.
+                                </p>
+                            </div>
+                        </div>
+
+                    @else
+                        {{-- KONDISI 3: BELUM ADA APA-APA --}}
+                        <div class="flex flex-col items-center justify-center py-12 text-center">
+                            <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mb-6">
+                                <svg class="w-10 h-10 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Anda belum menyewa kamar</h3>
+                            <p class="text-gray-500 mb-8 max-w-md mx-auto">Saat ini Anda belum memiliki sewa yang aktif. Silakan cari kamar yang tersedia dan ajukan booking untuk mulai menyewa.</p>
+                            
+                            <a href="{{ url('/') }}" class="inline-flex items-center px-6 py-3 bg-indigo-600 border border-transparent rounded-full font-bold text-white tracking-wide hover:bg-indigo-700 transition shadow-lg transform hover:-translate-y-1">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                Cari Kost Sekarang
+                            </a>
+                        </div>
+                    @endif
+
                 </div>
-            @empty
-                <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100 p-12 text-center">
-                    <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg class="w-10 h-10 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Anda belum menyewa kamar</h3>
-                    <p class="text-gray-500 mb-8 max-w-md mx-auto">Saat ini Anda belum memiliki sewa yang aktif. Silakan cari kamar yang tersedia dan ajukan booking untuk mulai menyewa.</p>
-                    <a href="{{ url('/') }}" class="inline-flex items-center px-6 py-3 bg-indigo-600 border border-transparent rounded-full font-bold text-white tracking-wide hover:bg-indigo-700 transition shadow-lg transform hover:-translate-y-1">
-                        Cari Kost Sekarang
-                    </a>
-                </div>
-            @endforelse
+            </div>
 
         </div>
     </div>
