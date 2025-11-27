@@ -20,9 +20,13 @@
          class="fixed w-full top-0 z-50 transition-all duration-300 ease-in-out">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <a href="/" class="font-extrabold text-2xl tracking-tight flex items-center gap-2 group">
-                    <span :class="{ 'text-indigo-600': scrolled, 'text-white': !scrolled }" class="transition-colors">KOST</span>
-                    <span :class="{ 'text-gray-800': scrolled, 'text-white': !scrolled }" class="transition-colors">BU ADAH</span>
+                <a href="/" class="font-extrabold text-2xl tracking-tight flex items-center gap-3 group">
+                    <img src="{{ asset('img/logo.jpg') }}" class="h-10 w-auto object-contain bg-white rounded-full p-1" alt="Logo">
+                    
+                    <div class="flex flex-col leading-none">
+                        <span :class="{ 'text-indigo-600': scrolled, 'text-white': !scrolled }" class="transition-colors">KOST</span>
+                        <span :class="{ 'text-gray-800': scrolled, 'text-white': !scrolled }" class="transition-colors">BU ADAH</span>
+                    </div>
                 </a>
 
                 <div class="hidden md:flex items-center space-x-6">

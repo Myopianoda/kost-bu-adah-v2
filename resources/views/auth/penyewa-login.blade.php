@@ -24,6 +24,7 @@
             <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
                 
                 <div class="text-center mb-8">
+                    <img src="{{ asset('img/logo.jpg') }}" alt="Logo" class="w-20 h-20 mx-auto rounded-xl mb-4 object-contain">
                     <h3 class="text-2xl font-extrabold text-gray-900">Login Penyewa</h3>
                     <p class="text-sm text-gray-500 mt-2">Masukkan nomor telepon Anda untuk melanjutkan.</p>
                 </div>

@@ -24,6 +24,7 @@
             <div class="w-full max-w-lg bg-white p-8 rounded-2xl shadow-lg border border-gray-100 my-8">
                 
                 <div class="text-center mb-8">
+                    <img src="{{ asset('img/logo.jpg') }}" alt="Logo" class="w-20 h-20 mx-auto mb-4 object-contain rounded-xl">
                     <h3 class="text-2xl font-extrabold text-gray-900">Pendaftaran Penghuni</h3>
                     <p class="text-sm text-gray-500 mt-2">Isi formulir di bawah ini dengan data yang valid.</p>
                 </div>

@@ -81,7 +81,7 @@ class PortalController extends Controller
 
     public function editProfil()
     {
-        return view('penyewa.profil');
+        return view('portal.profil');
     }
 
     public function updateProfil(Request $request)
