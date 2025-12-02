@@ -122,4 +122,21 @@ class BookingController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
+
+    public function destroy(Booking $booking)
+    {
+        // Cek dulu, kalau statusnya masih 'pending', kita harus bebaskan unitnya
+        if ($booking->status == 'pending') {
+            $unit = $booking->unit;
+            if ($unit) {
+                $unit->status = 'tersedia';
+                $unit->save();
+            }
+        }
+
+        // Hapus data booking
+        $booking->delete();
+
+        return redirect()->back()->with('success', 'Data booking berhasil dihapus.');
+    }
 }
