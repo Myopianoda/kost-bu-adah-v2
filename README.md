@@ -1,61 +1,504 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Kost Bu Adah
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A web-based boarding house management system built with Laravel.
 
-## About Laravel
+Kost Bu Adah manages the main boarding house workflow from room availability and tenant registration to booking, rental, billing, payment verification, and PDF receipt generation.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+This repository is also being prepared as a portfolio project for **Software Quality Assurance / Software Testing**, including regression testing, bug investigation, security testing, and reproducible demo data.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Features
 
-## Learning Laravel
+### Administrator
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+* Admin authentication
+* Dashboard overview
+* Manage boarding house units
+* Manage tenant data
+* Review booking requests
+* Approve or reject bookings
+* Manage active rentals
+* Manage tenant bills
+* Verify uploaded payment proof
+* Confirm payments
+* Download payment receipts as PDF
+* Manage expenses
+* Export tenant, billing, and expense data
+* View reports
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Tenant
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+* Tenant registration and login
+* View available units
+* Submit room booking requests
+* View tenant dashboard
+* Update profile
+* View billing information
+* Upload payment proof
+* Download payment receipt after payment confirmation
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Main Application Flow
 
-### Premium Partners
+```text
+Tenant Registration
+        ↓
+View Available Unit
+        ↓
+Submit Booking
+        ↓
+Admin Approval
+        ↓
+Active Rental
+        ↓
+Bill Generated
+        ↓
+Upload Payment Proof
+        ↓
+Pending Verification
+        ↓
+Admin Confirms Payment
+        ↓
+Paid
+        ↓
+PDF Receipt
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## Tech Stack
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+* PHP 8.4
+* Laravel 12
+* MySQL 8
+* Laravel Blade
+* Eloquent ORM
+* JavaScript
+* Vite
+* Composer
+* npm
 
-## Code of Conduct
+The current version is intended for **local demo and portfolio use**, not production deployment.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## Demo Data
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+A database seeder is included so the application can immediately contain usable demo data after a fresh setup.
 
-## License
+Run:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+php artisan migrate:fresh --seed
+```
+
+The seeder creates:
+
+* 1 demo administrator
+* 4 boarding house units
+* 3 demo tenants
+* 2 booking records
+* 2 rental records
+* 3 billing records
+
+The seeded data represents several application states, including:
+
+* Available room
+* Room under booking
+* Occupied room
+* Pending booking
+* Approved booking
+* Active rental
+* Completed rental
+* Unpaid bill
+* Overdue bill
+* Paid bill
+
+> **Warning:** `php artisan migrate:fresh --seed` deletes all existing database tables before recreating them. Use it only on a development or demo database.
+
+---
+
+## Demo Accounts
+
+### Administrator
+
+```text
+Email: admin@kostbuadah.test
+Password: password
+```
+
+Login route:
+
+```text
+/login
+```
+
+### Tenant Accounts
+
+All demo tenant accounts use:
+
+```text
+Password: password
+```
+
+Available demo phone numbers:
+
+```text
+081200000001
+081200000002
+081200000003
+```
+
+Tenant login:
+
+```text
+/penyewa/login
+```
+
+Tenant registration:
+
+```text
+/penyewa/register
+```
+
+These credentials are intentionally created for local demonstration purposes only.
+
+---
+
+## Installation
+
+### Requirements
+
+Make sure the following tools are installed:
+
+* PHP
+* Composer
+* MySQL
+* Node.js
+* npm
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Myopianoda/kost-bu-adah-v2.git
+cd kost-bu-adah-v2
+```
+
+### 2. Install PHP dependencies
+
+```bash
+composer install
+```
+
+### 3. Create the environment file
+
+Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Linux/macOS:
+
+```bash
+cp .env.example .env
+```
+
+### 4. Generate the application key
+
+```bash
+php artisan key:generate
+```
+
+### 5. Configure the database
+
+Create a MySQL database, for example:
+
+```text
+kost_bu_adah
+```
+
+Then update the database configuration in `.env`.
+
+Example:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=kost_bu_adah
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Adjust the username and password according to your local MySQL configuration.
+
+### 6. Run migrations and seed demo data
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+### 7. Create the storage symbolic link
+
+```bash
+php artisan storage:link
+```
+
+### 8. Install frontend dependencies
+
+```bash
+npm install
+```
+
+### 9. Build frontend assets
+
+```bash
+npm run build
+```
+
+### 10. Start the application
+
+```bash
+php artisan serve
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000
+```
+
+---
+
+## Fresh Setup Validation
+
+The portfolio version of this project has been tested using a completely fresh database.
+
+The following process completed successfully:
+
+```text
+Fresh Database
+      ↓
+Run All Migrations
+      ↓
+Seed Demo Data
+      ↓
+Start Application
+      ↓
+Demo Data Available in UI
+```
+
+This validation helps ensure the project does not depend on manually modified database state from an older development environment.
+
+---
+
+## QA & Testing Work
+
+This application is also used as a practical Software QA portfolio.
+
+Testing and investigation performed during project restoration include:
+
+* Core business-flow regression testing
+* Payment workflow testing
+* Fresh database testing
+* Database schema verification
+* Authorization testing
+* Tenant data-isolation testing
+* Bug reproduction
+* Root-cause analysis
+* Regression validation after fixes
+
+---
+
+## Bug Case Study — PAY-001
+
+### Payment Status Schema Mismatch
+
+**Area:** Billing / Payment
+
+**Severity:** High
+
+### Expected
+
+After a tenant uploads payment proof:
+
+```text
+Upload Payment Proof
+        ↓
+menunggu_verifikasi
+        ↓
+Admin Confirmation
+        ↓
+lunas
+```
+
+### Actual
+
+Uploading payment proof caused an HTTP 500 database error.
+
+The application attempted to save:
+
+```text
+menunggu_verifikasi
+```
+
+but the database ENUM did not contain that value.
+
+### Root Cause
+
+Application logic had already introduced the `menunggu_verifikasi` billing state, but the corresponding database migration had not been added.
+
+This caused the application code and database schema to become inconsistent.
+
+### Fix
+
+A new migration was added so the billing status supports:
+
+```text
+belum_bayar
+menunggu_verifikasi
+lunas
+terlambat
+```
+
+The payment flow was then regression-tested through payment confirmation and PDF receipt generation.
+
+---
+
+## Security Improvements
+
+### Tenant Billing Authorization
+
+A tenant must only be able to access billing records belonging to their own rental.
+
+Authorization was reviewed and improved to prevent a tenant from accessing another tenant's billing information by manually changing an ID in the URL.
+
+### Separate Authentication Flows
+
+Administrator and tenant authentication use separate application flows.
+
+Administrator:
+
+```text
+/login
+```
+
+Tenant:
+
+```text
+/penyewa/login
+/penyewa/register
+```
+
+---
+
+## Repository Cleanup
+
+The following cleanup and maintenance work has been completed:
+
+* Removed an unused nested Laravel project
+* Removed unused test API routes
+* Improved `.env.example`
+* Updated frontend dependencies
+* Resolved reported frontend dependency vulnerabilities
+* Verified frontend production build
+* Added reproducible demo data
+* Verified migrations from a fresh database
+* Improved tenant billing authorization
+
+---
+
+## Payment Integration Note
+
+The repository contains previous Midtrans integration code and a notification webhook.
+
+Midtrans is currently **not required for the local portfolio demonstration**.
+
+The main demonstrated payment workflow uses:
+
+```text
+Tenant uploads payment proof
+        ↓
+Admin verifies payment
+        ↓
+Billing status becomes paid
+        ↓
+PDF receipt becomes available
+```
+
+---
+
+## Project Status
+
+### Completed
+
+* [x] Fresh project restoration
+* [x] Administrator authentication
+* [x] Tenant authentication
+* [x] Unit management
+* [x] Tenant management
+* [x] Booking workflow
+* [x] Rental workflow
+* [x] Billing workflow
+* [x] Payment-proof upload
+* [x] Payment verification
+* [x] PDF receipt generation
+* [x] Payment schema bug fix
+* [x] Tenant billing authorization fix
+* [x] Repository cleanup
+* [x] Fresh database migration validation
+* [x] Demo database seeder
+
+### QA Portfolio Work in Progress
+
+* [ ] Structured test plan
+* [ ] Manual test cases
+* [ ] Regression checklist
+* [ ] Formal bug reports
+* [ ] Testing evidence
+* [ ] Automated tests
+
+---
+
+## Portfolio Goals
+
+This repository is being developed further to demonstrate practical skills in:
+
+* Software testing
+* Understanding business requirements and workflows
+* Manual regression testing
+* Writing test cases
+* Bug reporting
+* Root-cause investigation
+* Database validation
+* Basic authorization/security testing
+* Git-based project maintenance
+* Reproducible development environments
+* Laravel web application development
+
+---
+
+## Repository
+
+GitHub:
+
+```text
+https://github.com/Myopianoda/kost-bu-adah-v2
+```
+
+---
+
+## Notes
+
+This project was originally developed as an application project and later restored and improved for portfolio purposes.
+
+Current development focuses on making the repository:
+
+* Reproducible from a fresh clone
+* Easy to demonstrate
+* Easier to review
+* Better documented
+* Suitable for continued Software QA testing practice
